@@ -1,5 +1,5 @@
 #===========================================
-# R Codes for implementing our method
+# R codes for implementing our method
 #===========================================
 
 library("car")
@@ -72,7 +72,7 @@ colnames(Mat) = c("bias", "ci.low", "ci.upp", "ci.length")
 Mat
 
 #===========================================
-# R Codes for our simulations section
+# R codes for our simulations section
 #===========================================
 
 estimates.new<-function(Y, Z, X, PX, m, N, tau0 = 2){
