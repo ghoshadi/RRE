@@ -1,5 +1,5 @@
 #===========================================
-# Codes for implementing our method
+# R Codes for implementing our method
 #===========================================
 
 library("car")
@@ -72,7 +72,7 @@ colnames(Mat) = c("bias", "ci.low", "ci.upp", "ci.length")
 Mat
 
 #===========================================
-# Codes for our simulations section
+# R Codes for our simulations section
 #===========================================
 
 estimates.new<-function(Y, Z, X, PX, m, N, tau0 = 2){
@@ -177,5 +177,5 @@ main<-function(){
 
 main() # returns a vector of length 540
 
-# The above code is run repeatedly using parallel computing.
+# The above code was run repeatedly using parallel computing.
 # The outputs were then stored in an excel file and summarized in Tables 3-5 of the main paper.
