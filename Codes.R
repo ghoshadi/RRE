@@ -5,25 +5,25 @@
 library("car")
 
 # computing our rank-based estimator w/o regression adjustment:
-compute.tau.hat_R<-function(v, Z){
+compute.tau.hat_R_unadj <- function(v, Z){
   trtd = v[Z == 1]; ctrl = v[Z == 0]
   that = median(outer(trtd, ctrl, FUN = "-"))
   return(that) 
 }
 
 # computing regression Wilcoxon rank-sum statistic:
-compute.WRS.adj<-function(Y, Z, X, tau)
+compute.WRS.adj <- function(Y, Z, X, tau)
   return(sum(rank(lm((Y - tau*Z) ~ X)$res)*Z)/length(Z)) #with intercept
 
 # computing our rank-based regression adjusted estimator:
-compute.tau.hat_R_adj<-function(Y, Z, X){
+compute.tau.hat_R_adj <- function(Y, Z, X){
   m = sum(Z); N = length(Z)
-  fun<-function(t) return(compute.WRS.adj(Y, Z, X, t) - (m/N)*(N+1)/2)
+  fun <- function(t) return(compute.WRS.adj(Y, Z, X, t) - (m/N)*(N+1)/2)
   return(uniroot(fun, c(0, 1), extendInt="yes")$root)
 }
 
 # auxiliary function to compute different estimates:
-estimates<-function(Y, Z, X){
+estimates <- function(Y, Z, X){
   m = sum(Z); n = length(Z)
   Xw = cbind(1, X)
   PX = Xw %*% solve(t(Xw) %*% Xw) %*% t(Xw)
@@ -56,7 +56,8 @@ estimates<-function(Y, Z, X){
 }
 
 # A simple example
-N = 10^4; m = 0.4*N
+set.seed(123)
+N = 1e3; m = 0.4*N
 tau0 = 2
 X = runif(N, min = -4, max = 4)
 a = (X + X^3)/4 + rnorm(N)
@@ -69,15 +70,15 @@ out = estimates(Y, Z, X)
 Mat = cbind(out$est - tau0, out$est - 1.96*out$se, out$est + 1.96*out$se, 2*1.96*out$se)
 rownames(Mat) = c("tau.hat.R", "diff-in-means", "tau.hat.R.adj", "Lin.reg.adj", "Lin.interact")
 colnames(Mat) = c("bias", "ci.low", "ci.upp", "ci.length")
-Mat
+print(round(Mat, digits = 3))
 
 #===========================================
 # R codes for our simulations section
 #===========================================
 
-estimates.new<-function(Y, Z, X, PX, m, N, tau0 = 2){
+estimates.new <- function(Y, Z, X, PX, m, N, tau0 = 2){
   
-  tau_unadj = compute.tau.hat_R(Y, Z)
+  tau_unadj = compute.tau.hat_R_unadj(Y, Z)
   bh = Y - tau_unadj*Z
   bdiff = outer(bh, bh, "-")
   Ib.hat = N^(-3/2) * sum((bdiff > 0) * (bdiff <= 1/sqrt(N)))
@@ -112,7 +113,7 @@ estimates.new<-function(Y, Z, X, PX, m, N, tau0 = 2){
   return(c(tau_unadj, tau_dm, tau_adj, tau_ladj, tau_linter, se_R.unadj, se_oracle.unadj, se_dm, se_R.adj,  se_oracle.adj, se_ladj, se_linter))
 }
 
-aux<-function(a, tau0, x, Px, mlist){
+aux <- function(a, tau0, x, Px, mlist){
   N = length(a)
   b = a - tau0
   new = c()
@@ -124,8 +125,8 @@ aux<-function(a, tau0, x, Px, mlist){
   return(new)
 }
 
-main<-function(){
-  N = 10^2
+main <- function(){
+  N = 1e3
   tau0 = 2
   mlist = c(0.75, 0.6, 0.5, 0.4, 0.25)*N
   
@@ -175,7 +176,7 @@ main<-function(){
   return(Output) 
 }
 
-main() # returns a vector of length 540
+length(out <- main()) # returns a vector of length 540
 
 # The above code was run repeatedly using parallel computing.
 # The outputs were then stored in an excel file and summarized in Tables 3-5 of the main paper.
