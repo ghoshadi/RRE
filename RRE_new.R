@@ -117,63 +117,10 @@ process_file <- function(i) {
   set.seed(i)
   N = 1e3
   tau0 = 2
-
-  output = c()
-  
-  ## Setting 1: a = iid + eps
-  x = runif(N, min = -4, max = 4)
-  xw = cbind(1, x)
-  Px = xw %*% solve(crossprod(xw)) %*% t(xw)
-  a = rexp(N, rate = 1/10) 
-  g.err = rnorm(N)
-  t1.err = rt(N, df = 1)
-  t3.err = rt(N, df = 3)
-  
-  for(p in c(.75, 0.5, 0.25)){
-    Z = as.numeric(sample(N) <= floor(p*N))
-    Y = a + g.err - tau0*(1-Z) # = a Z + (a - tau0) (1 - Z) = a Z + b (1 - Z)
-    out = estimates.new(Y, Z, x, Px)
-    half.width = 1.96 * out[6:10]
-    cvrg = as.numeric(abs(out[1:5] - tau0) <= half.width)
-    output = c(output, c(rbind(cvrg, 2*half.width)))
-  }
-  for(p in c(.75, 0.5, 0.25)){
-    Z = as.numeric(sample(N) <= floor(p*N))
-    Y = a + t1.err - tau0*(1-Z) # = a Z + (a - tau0) (1 - Z) = a Z + b (1 - Z)
-    out = estimates.new(Y, Z, x, Px)
-    half.width = 1.96 * out[6:10]
-    cvrg = as.numeric(abs(out[1:5] - tau0) <= half.width)
-    output = c(output, c(rbind(cvrg, 2*half.width)))
-  }
-  for(p in c(.75, 0.5, 0.25)){
-    Z = as.numeric(sample(N) <= floor(p*N))
-    Y = a + t3.err - tau0*(1-Z) # = a Z + (a - tau0) (1 - Z) = a Z + b (1 - Z)
-    out = estimates.new(Y, Z, x, Px)
-    half.width = 1.96 * out[6:10]
-    cvrg = as.numeric(abs(out[1:5] - tau0) <= half.width)
-    output = c(output, c(rbind(cvrg, 2*half.width)))
-  }
-  return(output)
-}
-
-results.list <- pbmclapply(1:num_iterations, process_file, mc.cores = num_cores)
-results <- do.call(rbind, results.list)
-
-write.csv(results, "RRE_siml_setting1.csv", row.names = FALSE)
-matrix(colMeans(read.csv("RRE_siml_setting1.csv")), ncol = 9)
-
-##-----------------------------------------------------------------
-##                          Setting 2
-##-----------------------------------------------------------------
-
-process_file <- function(i) {
-  set.seed(i)
-  N = 1e3
-  tau0 = 2
   
   output = c()
   
-  ## Setting 2: a = 3x + eps
+  ## Setting 1: a = 3x + eps
   x = runif(N, min = -4, max = 4)
   xw = cbind(1, x)
   Px = xw %*% solve(crossprod(xw)) %*% t(xw)
@@ -212,14 +159,69 @@ process_file <- function(i) {
 results.list <- pbmclapply(1:num_iterations, process_file, mc.cores = num_cores)
 results <- do.call(rbind, results.list)
 
-write.csv(results, "RRE_siml_setting2.csv", row.names = FALSE)
-matrix(colMeans(read.csv("RRE_siml_setting2.csv")), ncol = 9)
+write.csv(results, "RRE_siml_setting1.csv", row.names = FALSE)
+matrix(colMeans(read.csv("RRE_siml_setting1.csv")), ncol = 9)
+
+
 
 ##-----------------------------------------------------------------
 ##                          Setting 3
 ##-----------------------------------------------------------------
 
-## Setting 3: a = (x + sqrt(x))/4 + eps, x = exp(uniform)
+process_file <- function(i) {
+  set.seed(i)
+  N = 1e3
+  tau0 = 2
+
+  output = c()
+  
+  ## Setting 3: a = iid + eps
+  x = runif(N, min = -4, max = 4)
+  xw = cbind(1, x)
+  Px = xw %*% solve(crossprod(xw)) %*% t(xw)
+  a = rexp(N, rate = 1/10) 
+  g.err = rnorm(N)
+  t1.err = rt(N, df = 1)
+  t3.err = rt(N, df = 3)
+  
+  for(p in c(.75, 0.5, 0.25)){
+    Z = as.numeric(sample(N) <= floor(p*N))
+    Y = a + g.err - tau0*(1-Z) # = a Z + (a - tau0) (1 - Z) = a Z + b (1 - Z)
+    out = estimates.new(Y, Z, x, Px)
+    half.width = 1.96 * out[6:10]
+    cvrg = as.numeric(abs(out[1:5] - tau0) <= half.width)
+    output = c(output, c(rbind(cvrg, 2*half.width)))
+  }
+  for(p in c(.75, 0.5, 0.25)){
+    Z = as.numeric(sample(N) <= floor(p*N))
+    Y = a + t1.err - tau0*(1-Z) # = a Z + (a - tau0) (1 - Z) = a Z + b (1 - Z)
+    out = estimates.new(Y, Z, x, Px)
+    half.width = 1.96 * out[6:10]
+    cvrg = as.numeric(abs(out[1:5] - tau0) <= half.width)
+    output = c(output, c(rbind(cvrg, 2*half.width)))
+  }
+  for(p in c(.75, 0.5, 0.25)){
+    Z = as.numeric(sample(N) <= floor(p*N))
+    Y = a + t3.err - tau0*(1-Z) # = a Z + (a - tau0) (1 - Z) = a Z + b (1 - Z)
+    out = estimates.new(Y, Z, x, Px)
+    half.width = 1.96 * out[6:10]
+    cvrg = as.numeric(abs(out[1:5] - tau0) <= half.width)
+    output = c(output, c(rbind(cvrg, 2*half.width)))
+  }
+  return(output)
+}
+
+results.list <- pbmclapply(1:num_iterations, process_file, mc.cores = num_cores)
+results <- do.call(rbind, results.list)
+
+write.csv(results, "RRE_siml_setting3.csv", row.names = FALSE)
+matrix(colMeans(read.csv("RRE_siml_setting3.csv")), ncol = 9)
+
+##-----------------------------------------------------------------
+##                          Setting 4
+##-----------------------------------------------------------------
+
+## Setting 4: a = (x + sqrt(x))/4 + eps, x = exp(uniform)
 
 process_file <- function(i) {
   set.seed(i)
@@ -267,5 +269,5 @@ process_file <- function(i) {
 results.list <- pbmclapply(1:num_iterations, process_file, mc.cores = num_cores)
 results <- do.call(rbind, results.list)
 
-write.csv(results, "RRE_siml_setting3.csv", row.names = FALSE)
-matrix(colMeans(read.csv("RRE_siml_setting3.csv")), ncol = 9)
+write.csv(results, "RRE_siml_setting4.csv", row.names = FALSE)
+matrix(colMeans(read.csv("RRE_siml_setting4.csv")), ncol = 9)
